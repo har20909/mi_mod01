@@ -1,0 +1,94 @@
+plugins {
+	id 'fabric-loom' version '1.5-SNAPSHOT'
+	id 'maven-publish'
+}
+
+version = project.mod_version
+group = project.maven_group
+
+base {
+	archivesName = project.archives_base_name
+}
+
+dependencies {
+	minecraft "com.mojang:minecraft:${project.minecraft_version}"
+	mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
+	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+}
+
+processResources {
+	inputs.property "version", project.version
+	filesMatching("fabric.mod.json") {
+		expand "version": project.version
+	}
+}
+
+tasks.withType(JavaCompile).configureEach {
+	it.options.release = 17
+}
+
+java {
+	sourceCompatibility = JavaVersion.VERSION_17
+	targetCompatibility = JavaVersion.VERSION_17
+}
+
+org.gradle.jvmargs=-Xmx1G
+org.gradle.parallel=true
+
+minecraft_version=1.20.1
+yarn_mappings=1.20.1+build.10
+loader_version=0.15.11
+fabric_version=0.92.2+1.20.1
+
+mod_version=1.0.0
+maven_group=com.toolxp
+archives_base_name=toolxp
+
+# Tool XP (Fabric 1.20.1)
+
+Cada herramienta (pico, hacha, pala, azada y espada) tiene su propio **nivel y XP**, guardados en la herramienta.
+
+## Cómo gana XP
+- Romper un bloque: de 1 a 5 XP según su dureza (hierba y antorchas no dan).
+- Matar una criatura: de 1 a 10 XP según su vida máxima.
+- La XP necesaria por nivel es `30 + 25 × nivel`. Nivel máximo: 15.
+
+## Bonos al subir de nivel
+- Cada 3 niveles: +1 Eficiencia (Filo en espadas), hasta V.
+- Cada 5 niveles: +1 Irrompibilidad, hasta III.
+- Nivel 10: Reparación.
+
+Los bonos son encantamientos normales del juego, así que se suman a los que ya tenga la herramienta.
+El tooltip muestra el nivel y la XP (por ejemplo `Nivel 4  XP 35/130`).
+
+## Rendimiento
+Solo reacciona a romper bloques y matar criaturas. No usa ticks, renders ni hilos.
+
+## Compatibilidad
+Se puede usar junto al mod **Tool Level** (el que sube el material de la herramienta). Al mejorar de material, el nivel y la XP se conservan.
+
+## Cómo compilar
+### Opción A: sin instalar nada (GitHub Actions)
+1. Crea un repositorio en GitHub y sube todo este contenido.
+2. En **Actions**, ejecuta el workflow **build**.
+3. Descarga el artefacto `toolxp-jar`.
+
+### Opción B: en un PC con permisos
+1. Instala JDK 17 y Gradle 8.5.
+2. Ejecuta `gradle build`.
+3. El jar queda en `build/libs/toolxp-1.0.0.jar` (no el `-sources`).
+
+## Instalación
+Copia el `.jar` y **Fabric API 1.20.1** a la carpeta `mods` de Fabric 1.20.1.
+
+pluginManagement {
+	repositories {
+		maven {
+			name = 'Fabric'
+			url = 'https://maven.fabricmc.net/'
+		}
+		mavenCentral()
+		gradlePluginPortal()
+	}
+}
